@@ -19,7 +19,7 @@ function UsersList() {
 
     fetchUsers();
   }, []);
-  console.log(users);
+
   return (
     <>
       <div>
