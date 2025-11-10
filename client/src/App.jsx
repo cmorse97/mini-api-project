@@ -4,8 +4,8 @@ import TodoList from './components/TodoList';
 function App() {
   return (
     <>
-      <h1>Supabase, Express, React Todo List App</h1>
-      <div>
+      <h1>Todo List</h1>
+      <div className="main-content">
         <TodoList />
       </div>
     </>

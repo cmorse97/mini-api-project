@@ -11,14 +11,18 @@ export default function TodoForm({ onAdd }) {
   };
 
   return (
-    <form onSubmit={handleSubmit}>
+    <form onSubmit={handleSubmit} className="todo-form">
       <input
+        className="todo-input"
+        name="todo-input"
         type="text"
         value={title}
         onChange={(e) => setTitle(e.target.value)}
         placeholder="Add a new todo..."
       />
-      <button type="submit">Add Todo</button>
+      <button className="submit-btn" type="submit">
+        Add
+      </button>
     </form>
   );
 }

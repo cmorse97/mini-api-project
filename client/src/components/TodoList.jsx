@@ -10,13 +10,13 @@ export default function TodoList() {
   }, []);
 
   const fetchTodos = async () => {
-    const res = await fetch('http://localhost:3000/api/todos');
+    const res = await fetch('/api/todos');
     const data = await res.json();
     setTodos(data);
   };
 
   const handleAdd = async (title) => {
-    await fetch('http://localhost:3000/api/todos', {
+    await fetch('/api/todos', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json' },
       body: JSON.stringify({ title }),
@@ -26,18 +26,29 @@ export default function TodoList() {
   };
 
   const handleDelete = async (id) => {
-    await fetch(`http://localhost:3000/api/todos/${id}`, { method: 'DELETE' });
+    await fetch(`/api/todos/${id}`, { method: 'DELETE' });
     await fetchTodos();
   };
 
   const handleToggle = async (id, is_completed) => {
-    console.log('Toggling todo with id: ', id);
-    await fetch(`http://localhost:3000/api/todos/${id}`, {
+    await fetch(`/api/todos/${id}`, {
       method: 'PUT',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ is_completed }),
+    });
+
+    await fetchTodos();
+  };
+
+  const handleEdit = async (id, title) => {
+    await fetch(`/api/todos/${id}`, {
+      method: 'PUT',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ title }),
     });
 
     await fetchTodos();
@@ -55,6 +66,7 @@ export default function TodoList() {
               todo={todo}
               onDelete={handleDelete}
               onToggle={handleToggle}
+              onEdit={handleEdit}
             />
           ))
         ) : (
