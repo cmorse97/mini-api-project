@@ -5,7 +5,7 @@ async function getTodos(req, res) {
   const { data: todos, error } = await supabase
     .from('todos')
     .select('*')
-    .order('is_completed', { ascending: false })
+    .order('is_completed', { ascending: true })
     .order('id', { ascending: false });
 
   if (error) {

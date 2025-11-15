@@ -1,15 +1,22 @@
-import { useFormStatus } from 'react-dom';
+import { useState } from 'react';
 
 export default function TodoForm({ onAdd }) {
-  const { pending } = useFormStatus();
+  const [title, setTitle] = useState('');
 
-  const handleSubmit = (event) => {
+  const handleChange = (event) => {
+    const inputValue = event.target.value;
+    setTitle(inputValue);
+  };
+
+  const handleSubmit = async (event) => {
     event.preventDefault();
 
-    const formData = new FormData(event.target);
-    const inputValue = formData.get('todoTitle');
-
-    onAdd(inputValue);
+    try {
+      onAdd(title);
+      setTitle('');
+    } catch (error) {
+      console.error('Error creating todo: ', error);
+    }
   };
 
   return (
@@ -18,11 +25,13 @@ export default function TodoForm({ onAdd }) {
         className="todo-input"
         name="todoTitle"
         id="todoTitle"
+        value={title}
+        onChange={handleChange}
         type="text"
         placeholder="Add a new todo..."
       />
-      <button className="submit-btn" type="submit" disabled={pending}>
-        {pending ? 'Adding...' : 'Add'}
+      <button className="submit-btn" type="submit">
+        Add
       </button>
     </form>
   );
