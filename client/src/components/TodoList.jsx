@@ -1,4 +1,11 @@
 import { useEffect, useState } from 'react';
+import {
+  addTodo,
+  deleteTodo,
+  fetchTodos,
+  updateTodoStatus,
+  updateTodoTitle,
+} from '../utils/handleTodoData';
 import TodoForm from './TodoForm';
 import TodoItem from './TodoItem';
 
@@ -6,52 +13,36 @@ export default function TodoList() {
   const [todos, setTodos] = useState([]);
 
   useEffect(() => {
-    fetchTodos();
+    const loadData = async () => {
+      const data = await fetchTodos();
+      setTodos(data);
+    };
+
+    loadData();
   }, []);
 
-  const fetchTodos = async () => {
-    const res = await fetch('/api/todos');
-    const data = await res.json();
-    setTodos(data);
+  const handleAdd = async (title) => {
+    await addTodo(title);
+    const refreshed = await fetchTodos();
+    setTodos(refreshed);
   };
 
-  const handleAdd = async (title) => {
-    await fetch('/api/todos', {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({ title }),
-    });
+  const handleToggle = async (id, isComplete) => {
+    await updateTodoStatus(id, isComplete);
+    const refreshed = await fetchTodos();
+    setTodos(refreshed);
+  };
 
-    await fetchTodos();
+  const handleEdit = async (id, newTitle) => {
+    await updateTodoTitle(id, newTitle);
+    const refreshed = await fetchTodos();
+    setTodos(refreshed);
   };
 
   const handleDelete = async (id) => {
-    await fetch(`/api/todos/${id}`, { method: 'DELETE' });
-    await fetchTodos();
-  };
-
-  const handleToggle = async (id, is_completed) => {
-    await fetch(`/api/todos/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ is_completed }),
-    });
-
-    await fetchTodos();
-  };
-
-  const handleEdit = async (id, title) => {
-    await fetch(`/api/todos/${id}`, {
-      method: 'PUT',
-      headers: {
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({ title }),
-    });
-
-    await fetchTodos();
+    await deleteTodo(id);
+    const refreshed = await fetchTodos();
+    setTodos(refreshed);
   };
 
   return (
