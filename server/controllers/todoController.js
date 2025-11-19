@@ -1,7 +1,11 @@
+import asyncHandler from 'express-async-handler';
 import supabase from '../db/supabaseClient.js';
 import NotFound from '../errors/NotFound.js';
 
-async function getTodos(req, res) {
+// @desc --- Get todos
+// @route -- GET /api/todos
+// @access - Private
+const getTodos = asyncHandler(async (req, res) => {
   const { data: todos, error } = await supabase
     .from('todos')
     .select('*')
@@ -13,9 +17,9 @@ async function getTodos(req, res) {
   }
 
   return res.status(200).json(todos);
-}
+});
 
-async function getTodoById(req, res) {
+const getTodoById = asyncHandler(async (req, res) => {
   const todoId = req.params.id;
 
   // fetch single todo from supabase based on id
@@ -29,9 +33,16 @@ async function getTodoById(req, res) {
   }
 
   return res.status(200).json(todo);
-}
+});
 
-async function createTodo(req, res) {
+// @desc --- Create a todo
+// @route -- POST /api/todos
+// @access - Private
+const createTodo = asyncHandler(async (req, res) => {
+  if (!req.body.title) {
+    res.status(400);
+    throw new Error('Please include a title');
+  }
   const newTodo = req.body;
 
   // insert new todo to supabase
@@ -42,9 +53,12 @@ async function createTodo(req, res) {
   }
 
   return res.status(201).json(newTodo);
-}
+});
 
-async function editTodoById(req, res) {
+// @desc --- Edit existing todo by ID
+// @route -- PUT /api/todos/:id
+// @access - Private
+const editTodoById = asyncHandler(async (req, res) => {
   const { title, is_completed } = req.body;
   const todoId = req.params.id;
 
@@ -62,9 +76,12 @@ async function editTodoById(req, res) {
   }
 
   return res.status(200).json(todo);
-}
+});
 
-async function deleteTodoById(req, res) {
+// @desc --- Delete a todo by ID
+// @route -- DEL /api/todos/:id
+// @access - Private
+const deleteTodoById = asyncHandler(async (req, res) => {
   const todoId = req.params.id;
 
   const { data: todo, error: delError } = await supabase
@@ -77,6 +94,6 @@ async function deleteTodoById(req, res) {
   }
 
   return res.status(200).json(todo);
-}
+});
 
 export { createTodo, deleteTodoById, editTodoById, getTodoById, getTodos };
