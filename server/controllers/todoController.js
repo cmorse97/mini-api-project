@@ -1,6 +1,5 @@
 import asyncHandler from 'express-async-handler';
-import supabase from '../db/supabaseClient.js';
-import NotFound from '../errors/NotFound.js';
+import supabase from '../config/db/supabaseClient.js';
 
 // @desc --- Get todos
 // @route -- GET /api/todos
@@ -13,7 +12,7 @@ const getTodos = asyncHandler(async (req, res) => {
     .order('id', { ascending: false });
 
   if (error) {
-    throw new NotFound(error.message);
+    throw new Error(error.message);
   }
 
   return res.status(200).json(todos);
@@ -29,7 +28,7 @@ const getTodoById = asyncHandler(async (req, res) => {
     .eq('id', todoId);
 
   if (error) {
-    throw new NotFound(error.message);
+    throw new Error(error.message);
   }
 
   return res.status(200).json(todo);
@@ -72,7 +71,7 @@ const editTodoById = asyncHandler(async (req, res) => {
     .select();
 
   if (updateError) {
-    throw new NotFound(updateError.message);
+    throw new Error(updateError.message);
   }
 
   return res.status(200).json(todo);
@@ -90,7 +89,7 @@ const deleteTodoById = asyncHandler(async (req, res) => {
     .eq('id', todoId);
 
   if (delError) {
-    throw new NotFound(delError.message);
+    throw new Error(delError.message);
   }
 
   return res.status(200).json(todo);
