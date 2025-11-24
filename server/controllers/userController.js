@@ -7,17 +7,15 @@ import supabase from '../config/db/supabaseClient.js';
 // @route -- GET /api/users/:user
 // @access - Private
 const fetchUser = asyncHandler(async (req, res) => {
-  const username = req.params.username;
-
   const { data: user, error } = await supabase
     .from('users')
-    .select('*')
-    .eq('username', username)
+    .select('id, username, email')
+    .eq('id', req.user.id)
     .single();
 
   if (error) {
     res.status(400);
-    throw new Error('User does not exist');
+    throw new Error('Failed to fetch user data');
   }
 
   res.status(200).json(user);

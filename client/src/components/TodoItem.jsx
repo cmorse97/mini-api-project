@@ -6,11 +6,13 @@ export default function TodoItem({ todo, onDelete, onToggle, onEdit }) {
   const [isEditing, setEditing] = useState(false);
   const [newTitle, setNewTitle] = useState('');
 
+  const { id, title, is_completed } = todo;
+
   const handleChange = (e) => setNewTitle(e.target.value);
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    onEdit(todo.id, newTitle);
+    onEdit(id, newTitle);
     setNewTitle('');
     setEditing(false);
   };
@@ -18,11 +20,11 @@ export default function TodoItem({ todo, onDelete, onToggle, onEdit }) {
   const editingTemplate = (
     <form className="small-stack" onSubmit={handleSubmit}>
       <div className="todo-form-group">
-        <label className="todo-title" htmlFor={todo.id}>
-          New name for {todo.title}
+        <label className="todo-title" htmlFor={id}>
+          New name for {title}
         </label>
         <input
-          id={todo.id}
+          id={id}
           className="todo-text"
           type="text"
           value={newTitle}
@@ -36,11 +38,11 @@ export default function TodoItem({ todo, onDelete, onToggle, onEdit }) {
           onClick={() => setEditing(false)}
         >
           Cancel
-          <span className="visually-hidden">renaming {todo.title}</span>
+          <span className="visually-hidden">renaming {title}</span>
         </button>
         <button type="submit" className="btn btn__primary todo-edit">
           Save
-          <span className="visually-hidden">new name for {todo.title}</span>
+          <span className="visually-hidden">new name for {title}</span>
         </button>
       </div>
     </form>
@@ -50,14 +52,14 @@ export default function TodoItem({ todo, onDelete, onToggle, onEdit }) {
     <div className="small-stack">
       <div className="form-group">
         <input
-          id={todo.id}
+          id={id}
           type="checkbox"
           className="todo-checkbox"
-          defaultChecked={todo.is_completed}
-          onChange={() => onToggle(todo.id, !todo.is_completed)}
+          defaultChecked={is_completed}
+          onChange={() => onToggle(id, !is_completed)}
         />
-        <label className="todo-title" htmlFor={todo.id}>
-          {todo.title}
+        <label className="todo-title" htmlFor={id}>
+          {title}
         </label>
       </div>
       <div className="todo-controls">
@@ -67,15 +69,15 @@ export default function TodoItem({ todo, onDelete, onToggle, onEdit }) {
           onClick={() => setEditing(true)}
         >
           <FontAwesomeIcon icon={faPenToSquare} />
-          <span className="visually-hidden">{todo.title}</span>
+          <span className="visually-hidden">{title}</span>
         </button>
         <button
           type="button"
           className="delete-btn"
-          onClick={() => onDelete(todo.id)}
+          onClick={() => onDelete(id)}
         >
           <FontAwesomeIcon icon={faTrashCan} />{' '}
-          <span className="visually-hidden">{todo.title}</span>
+          <span className="visually-hidden">{title}</span>
         </button>
       </div>
     </div>
