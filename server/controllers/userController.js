@@ -21,6 +21,22 @@ const fetchUser = asyncHandler(async (req, res) => {
   res.status(200).json(user);
 });
 
+// @desc --- Fetch list of all users
+// @route -- GET /api/users/
+// @access - Public
+const fetchAllUsers = asyncHandler(async (req, res) => {
+  const { data: users, error } = await supabase
+    .from('users')
+    .select('id, username');
+
+  if (error) {
+    res.status(400);
+    throw new Error('Failed to fetch users from database');
+  }
+
+  res.status(200).json(users);
+});
+
 // @desc --- Register new user
 // @route -- POST /api/users/register
 // @access - Public
@@ -103,4 +119,4 @@ const generateToken = (id) => {
   });
 };
 
-export { fetchUser, loginUser, registerUser };
+export { fetchAllUsers, fetchUser, loginUser, registerUser };

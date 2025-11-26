@@ -1,7 +1,11 @@
 import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { createTodo } from '../features/todos/todoSlice';
 
-export default function TodoForm({ onAdd }) {
+export default function TodoForm() {
   const [title, setTitle] = useState('');
+
+  const dispatch = useDispatch();
 
   const handleChange = (event) => {
     const inputValue = event.target.value;
@@ -11,28 +15,30 @@ export default function TodoForm({ onAdd }) {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    try {
-      onAdd(title);
-      setTitle('');
-    } catch (error) {
-      console.error('Error creating todo: ', error);
-    }
+    dispatch(createTodo({ title }));
+    setTitle('');
   };
 
   return (
-    <form onSubmit={handleSubmit} className="todo-form">
-      <input
-        className="todo-input"
-        name="todoTitle"
-        id="todoTitle"
-        value={title}
-        onChange={handleChange}
-        type="text"
-        placeholder="Add a new todo..."
-      />
-      <button className="submit-btn" type="submit">
-        Add
-      </button>
-    </form>
+    <section className="form">
+      <form onSubmit={handleSubmit} className="todo-form">
+        <div className="form-group">
+          <input
+            className="todo-input"
+            name="todoTitle"
+            id="todoTitle"
+            value={title}
+            onChange={handleChange}
+            type="text"
+            placeholder="Add a new todo..."
+          />
+        </div>
+        <div className="form-group">
+          <button className="form-btn" type="submit">
+            Add
+          </button>
+        </div>
+      </form>
+    </section>
   );
 }

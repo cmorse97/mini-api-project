@@ -1,7 +1,11 @@
 import { faUser } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
-import { registerUser } from '../utils/handleUserData.js';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner.jsx';
+import { register, reset } from '../features/auth/authSlice.js';
 
 const Register = () => {
   const [formData, setFormData] = useState({
@@ -11,6 +15,26 @@ const Register = () => {
   });
 
   const { username, email, password } = formData;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Global state
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth,
+  );
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    if (isSuccess || user) {
+      navigate('/');
+    }
+
+    dispatch(reset());
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
 
   const handleChange = (event) => {
     const inputValue = event.target.value;
@@ -24,17 +48,18 @@ const Register = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    try {
-      await registerUser(username, email, password);
-      setFormData({
-        username: '',
-        email: '',
-        password: '',
-      });
-    } catch (error) {
-      console.error('Error submitting data: ', error);
-    }
+    const userData = {
+      username,
+      email,
+      password,
+    };
+
+    dispatch(register(userData));
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>
@@ -53,7 +78,7 @@ const Register = () => {
             <input
               id="username"
               name="username"
-              placeholder="johndoe123"
+              placeholder="johndoe"
               type="text"
               value={username}
               onChange={handleChange}
@@ -93,6 +118,14 @@ const Register = () => {
             Submit
           </button>
         </form>
+        <div className="form-cta">
+          <p>
+            Already have an account?{' '}
+            <span>
+              <Link to="/login">Log in</Link>
+            </span>
+          </p>
+        </div>
       </section>
     </>
   );

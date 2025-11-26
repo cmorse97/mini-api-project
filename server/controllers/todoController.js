@@ -53,13 +53,21 @@ const getTodoById = asyncHandler(async (req, res) => {
 // @route -- POST /api/todos
 // @access - Private
 const createTodo = asyncHandler(async (req, res) => {
-  if (!req.body.title) {
+  const { title } = req.body;
+  const { id: userId } = req.user;
+
+  if (!userId) {
+    res.status(401);
+    throw new Error('User not found');
+  }
+
+  if (!title) {
     res.status(400);
     throw new Error('Please include a title');
   }
   const newTodo = {
-    title: req.body.title,
-    user_id: req.user.id,
+    title: title,
+    user_id: userId,
   };
 
   // insert new todo to supabase

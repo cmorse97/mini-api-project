@@ -1,7 +1,11 @@
 import { faArrowAltCircleRight } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
-import { loginUser } from '../utils/handleUserData.js';
+import { useEffect, useState } from 'react';
+import { useDispatch, useSelector } from 'react-redux';
+import { Link, useNavigate } from 'react-router';
+import { toast } from 'react-toastify';
+import Spinner from '../components/Spinner.jsx';
+import { login, reset } from '../features/auth/authSlice.js';
 
 const Login = () => {
   const [formData, setFormData] = useState({
@@ -10,6 +14,26 @@ const Login = () => {
   });
 
   const { email, password } = formData;
+
+  const navigate = useNavigate();
+  const dispatch = useDispatch();
+
+  // Global state
+  const { user, isLoading, isError, isSuccess, message } = useSelector(
+    (state) => state.auth,
+  );
+
+  useEffect(() => {
+    if (isError) {
+      toast.error(message);
+    }
+
+    if (isSuccess || user) {
+      navigate('/');
+    }
+
+    dispatch(reset());
+  }, [user, isError, isSuccess, message, navigate, dispatch]);
 
   const handleChange = (event) => {
     const inputValue = event.target.value;
@@ -23,16 +47,17 @@ const Login = () => {
   const handleSubmit = async (event) => {
     event.preventDefault();
 
-    try {
-      await loginUser(email, password);
-      setFormData({
-        email: '',
-        password: '',
-      });
-    } catch (error) {
-      console.error('Error submitting data: ', error);
-    }
+    const userData = {
+      email,
+      password,
+    };
+
+    dispatch(login(userData));
   };
+
+  if (isLoading) {
+    return <Spinner />;
+  }
 
   return (
     <>
@@ -78,6 +103,14 @@ const Login = () => {
               Submit
             </button>
           </form>
+        </div>
+        <div className="form-cta">
+          <p>
+            Don't have an account?{' '}
+            <span className="form-cta">
+              <Link to="/register">Sign up</Link>
+            </span>
+          </p>
         </div>
       </section>
     </>
