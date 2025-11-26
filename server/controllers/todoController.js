@@ -5,9 +5,17 @@ import supabase from '../config/db/supabaseClient.js';
 // @route -- GET /api/todos
 // @access - Private
 const getTodos = asyncHandler(async (req, res) => {
+  const { id: userId } = req.user;
+
+  if (!userId) {
+    res.status(401);
+    throw new Error('User not found');
+  }
+
   const { data: todos, error } = await supabase
     .from('todos')
     .select('*')
+    .eq('user_id', userId)
     .order('is_completed', { ascending: true })
     .order('id', { ascending: false });
 
@@ -20,11 +28,18 @@ const getTodos = asyncHandler(async (req, res) => {
 
 const getTodoById = asyncHandler(async (req, res) => {
   const todoId = req.params.id;
+  const userId = req.user.id;
+
+  if (!userId) {
+    res.status(401);
+    throw new Error('User not found');
+  }
 
   // fetch single todo from supabase based on id
   const { data: todo, error } = await supabase
     .from('todos')
     .select()
+    .eq('user_id', userId)
     .eq('id', todoId);
 
   if (error) {
@@ -38,11 +53,22 @@ const getTodoById = asyncHandler(async (req, res) => {
 // @route -- POST /api/todos
 // @access - Private
 const createTodo = asyncHandler(async (req, res) => {
-  if (!req.body.title) {
+  const { title } = req.body;
+  const { id: userId } = req.user;
+
+  if (!userId) {
+    res.status(401);
+    throw new Error('User not found');
+  }
+
+  if (!title) {
     res.status(400);
     throw new Error('Please include a title');
   }
-  const newTodo = req.body;
+  const newTodo = {
+    title: title,
+    user_id: userId,
+  };
 
   // insert new todo to supabase
   const { error: insertError } = await supabase.from('todos').insert(newTodo);
@@ -60,6 +86,13 @@ const createTodo = asyncHandler(async (req, res) => {
 const editTodoById = asyncHandler(async (req, res) => {
   const { title, is_completed } = req.body;
   const todoId = req.params.id;
+  const userId = req.user.id;
+
+  // Check for authorized user
+  if (!userId) {
+    res.status(401);
+    throw new Error('User not found');
+  }
 
   const { data: todo, error: updateError } = await supabase
     .from('todos')
@@ -68,7 +101,13 @@ const editTodoById = asyncHandler(async (req, res) => {
       ...(typeof is_completed === 'boolean' && { is_completed }), // ensure boolean
     })
     .eq('id', todoId)
-    .select();
+    .eq('user_id', userId)
+    .select('*');
+
+  if (todo.user_id !== userId) {
+    res.status(401);
+    throw new Error('User not authorized');
+  }
 
   if (updateError) {
     throw new Error(updateError.message);
@@ -82,11 +121,19 @@ const editTodoById = asyncHandler(async (req, res) => {
 // @access - Private
 const deleteTodoById = asyncHandler(async (req, res) => {
   const todoId = req.params.id;
+  const userId = req.user.id;
+
+  // Check for authorized user
+  if (!userId) {
+    res.status(401);
+    throw new Error('User not found');
+  }
 
   const { data: todo, error: delError } = await supabase
     .from('todos')
     .delete()
-    .eq('id', todoId);
+    .eq('id', todoId)
+    .eq('user_id', userId);
 
   if (delError) {
     throw new Error(delError.message);

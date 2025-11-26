@@ -1,87 +1,38 @@
 import { faPenToSquare, faTrashCan } from '@fortawesome/free-regular-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { useState } from 'react';
+import { useDispatch } from 'react-redux';
+import { deleteTodo } from '../features/todos/todoSlice';
 
-export default function TodoItem({ todo, onDelete, onToggle, onEdit }) {
-  const [isEditing, setEditing] = useState(false);
-  const [newTitle, setNewTitle] = useState('');
+export default function TodoItem({ todo }) {
+  const dispatch = useDispatch();
 
-  const handleChange = (e) => setNewTitle(e.target.value);
+  const { id, title, created_at } = todo;
 
-  const handleSubmit = (e) => {
-    e.preventDefault();
-    onEdit(todo.id, newTitle);
-    setNewTitle('');
-    setEditing(false);
-  };
+  const date = new Date(created_at).toLocaleString('en-US').split(',')[0];
 
-  const editingTemplate = (
-    <form className="small-stack" onSubmit={handleSubmit}>
-      <div className="todo-form-group">
-        <label className="todo-title" htmlFor={todo.id}>
-          New name for {todo.title}
-        </label>
+  return (
+    <div className="todo-item">
+      <div className="checkbox">
         <input
-          id={todo.id}
-          className="todo-text"
-          type="text"
-          value={newTitle}
-          onChange={handleChange}
-        />
-      </div>
-      <div className="todo-controls">
-        <button
-          type="button"
-          className="btn todo-cancel"
-          onClick={() => setEditing(false)}
-        >
-          Cancel
-          <span className="visually-hidden">renaming {todo.title}</span>
-        </button>
-        <button type="submit" className="btn btn__primary todo-edit">
-          Save
-          <span className="visually-hidden">new name for {todo.title}</span>
-        </button>
-      </div>
-    </form>
-  );
-
-  const viewTemplate = (
-    <div className="small-stack">
-      <div className="form-group">
-        <input
-          id={todo.id}
           type="checkbox"
+          name="completeTodo"
+          id="completeTodo"
           className="todo-checkbox"
-          defaultChecked={todo.is_completed}
-          onChange={() => onToggle(todo.id, !todo.is_completed)}
         />
-        <label className="todo-title" htmlFor={todo.id}>
-          {todo.title}
-        </label>
+      </div>
+      <div className="todo-title">
+        <h2>{title}</h2>
+        <p>{date}</p>
       </div>
       <div className="todo-controls">
-        <button
-          type="button"
-          className="edit-btn"
-          onClick={() => setEditing(true)}
-        >
-          <FontAwesomeIcon icon={faPenToSquare} />
-          <span className="visually-hidden">{todo.title}</span>
+        {/* @TODO - Add in edit functionality to todoServices/todoSlice */}
+        <button className="edit-btn">
+          <FontAwesomeIcon icon={faPenToSquare} className="fa-icon" />
         </button>
-        <button
-          type="button"
-          className="delete-btn"
-          onClick={() => onDelete(todo.id)}
-        >
-          <FontAwesomeIcon icon={faTrashCan} />{' '}
-          <span className="visually-hidden">{todo.title}</span>
+        <button onClick={() => dispatch(deleteTodo(id))} className="delete-btn">
+          <FontAwesomeIcon icon={faTrashCan} className="fa-icon" />
         </button>
       </div>
     </div>
-  );
-
-  return (
-    <li className="todo-item">{isEditing ? editingTemplate : viewTemplate}</li>
   );
 }
